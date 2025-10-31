@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>21-dňová výzva — Dominika</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --peach:#FFEAE0;
+      --accent:#D97B61;
+      --text:#111;
+      --muted:#666;
+      --card-bg: rgba(255,255,255,0.96);
+      --logo-color:#333;
+      --max-w:1100px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:"Inter", "Playfair Display", Georgia, serif;background:var(--peach);color:var(--text);-webkit-font-smoothing:antialiased}
+    .wrap{min-height:100%;display:flex;align-items:center;justify-content:center;padding:20px}
+    .app{width:100%;max-width:var(--max-w);background:linear-gradient(180deg,rgba(255,255,255,0.98),rgba(255,255,255,0.94));border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.06);overflow:hidden;display:grid;grid-template-columns:1fr 380px}
+    .left{padding:26px 32px}
+    .right{padding:24px;display:flex;align-items:flex-start;justify-content:center;background:transparent;position:relative}
+
+    .title{font-size:20px;font-weight:700;margin:0 0 6px}
+    .subtitle{font-size:13px;color:var(--muted);margin:0 0 14px}
+
+    .controls{display:flex;gap:8px;align-items:center;margin:6px 0 14px}
+    .btn{padding:9px 12px;border-radius:10px;border:0;background:var(--accent);color:white;cursor:pointer;font-weight:700;font-family:inherit}
+    .btn.ghost{background:transparent;color:var(--text);border:1px solid rgba(0,0,0,0.06)}
+    .small{padding:6px 10px;font-size:13px}
+
+    .day-grid{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+    .day-btn{min-width:48px;height:40px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);background:white;cursor:pointer;font-weight:700;padding:6px}
+    .day-btn.active{background:var(--accent);color:white}
+
+    .card{background:var(--card-bg);border-radius:12px;padding:18px;box-shadow:0 6px 20px rgba(0,0,0,0.04)}
+    .day-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;gap:12px}
+    .day-h1{font-size:24px;margin:0}
+    .motto{font-size:14px;color:var(--accent);font-weight:700}
+
+    .desc{font-size:15px;color:var(--text);margin-bottom:12px;line-height:1.4}
+    .section-title{font-weight:700;margin-top:10px;margin-bottom:6px}
+    .workout{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .wk-item{background:white;padding:12px;border-radius:10px;border:1px solid rgba(0,0,0,0.04);font-size:14px}
+    .wk-title{font-weight:700;margin-bottom:6px}
+    .wk-meta{color:var(--muted);font-size:13px}
+    .warmup{background:#fff7f2;padding:10px;border-radius:10px;border:1px solid rgba(0,0,0,0.03);margin-bottom:8px;font-size:14px}
+    .notes-area{margin-top:12px}
+
+    .logo-wrap { position:absolute; right:24px; top:24px; width:180px; height:180px; display:flex; align-items:center; justify-content:center; }
+    .logo-svg { width:150px; height:150px; display:block; }
+
+    .intro { text-align:center; padding:34px 18px }
+    .intro h1{font-size:30px;margin:6px 0;color:var(--text)}
+    .intro p{color:var(--muted);font-size:15px;margin:6px 0 14px}
+
+    @media(max-width:980px){
+      .app{grid-template-columns:1fr}
+      .right{display:none}
+      .logo-wrap{display:none}
+      .day-grid{justify-content:center}
+    }
+
+    @media print {
+      @page { size: A4 landscape; margin: 10mm; }
+      body * { visibility: hidden; }
+      .card, .card * { visibility: visible; }
+      .card { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none; border-radius: 0 }
+    }
+    button:focus { outline:none; box-shadow:0 0 0 4px rgba(217,123,97,0.12); border-radius:8px }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <main class="app" role="application" aria-label="21-dňová výzva">
+      <section class="left" aria-live="polite">
+        <div>
+          <div class="title">21-dňová výzva — Dominika</div>
+          <div class="subtitle">3 tréningy / týždeň • max 20 min • mindset úlohy</div>
+        </div>
+
+        <div class="controls" aria-hidden="false">
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn small" id="prev">← Predchádzajúci</button>
+            <button class="btn small" id="next">Nasledujúci →</button>
+            <button class="btn small ghost" id="print">Tlačiť / PDF</button>
+          </div>
+          <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+            <button class="btn ghost small" id="markDone">Označiť hotové</button>
+            <button class="btn ghost small" id="addNote">Poznámka</button>
+          </div>
+        </div>
+
+        <div class="day-grid" id="dayGrid" aria-hidden="true"></div>
+
+        <div class="card" id="mainCard" role="region" aria-label="Deň detail">
+          <!-- content injected here -->
+        </div>
+      </section>
+
+      <aside class="right" aria-hidden="true">
+        <div class="logo-wrap" aria-hidden="false" title="Dominika">
+          <svg class="logo-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Logo DA">
+            <circle cx="100" cy="100" r="74" fill="none" stroke="var(--logo-color)" stroke-width="3" opacity="0.18"/>
+            <g transform="translate(10,10)" fill="none" stroke="var(--logo-color)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M30 30 C30 70, 30 110, 50 130 C78 155, 120 150, 130 120 C140 95, 120 70, 90 60 C70 54, 48 48, 30 30" />
+              <path d="M92 48 L120 140 M120 140 L150 48 M110 88 L132 88" stroke-width="5" />
+            </g>
+          </svg>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+<script>
+const data = [
+  {day:0, type:'intro', title:'Úvod', desc:"Vitaj vo svojej 21-dňovej výzve — krok k rovnováhe tela, mysle a duše.", warmup:null, workout:null, motto:"Začni dnes — malé kroky, veľké zmeny."},
+
+  {day:1, type:'mindset', title:'Úloha', desc:"Napíš si 3 dôvody, prečo chceš zmenu. Odfoť sa ako 'before'.", warmup:null, workout:null, motto:"Tvoje odhodlanie je prvým krokom k zmene."},
+  {day:2, type:'tréning', title:'Tréning 1 — Celotelový', desc:"20 min • zahriatie + 3 okruhy", warmup:["Chôdza na mieste 1 min","Kruhy ramenami 1 min","Dynamické drepy 1 min","Prepnutie bokov 1 min"], workout:[['Drepy','3×12'],['Kľuky na kolenách','3×10'],['Plank','3×30 s'],['Výpady','3×10 / noha']], motto:"Každý pohyb sa počíta."},
+  {day:3, type:'chôdza', title:'Prechádzka', desc:"20 min prechádzka + hydratácia", warmup:null, workout:null, motto:"Malé kroky vedú k veľkým zmenám."},
+  {day:4, type:'mindset', title:'Úloha', desc:"Napíš si, ako sa cítiš vo svojom tele. Buď úprimná.", warmup:null, workout:null, motto:"Spoznaj svoje telo s láskou."},
+  {day:5, type:'tréning', title:'Core & zadok', desc:"20 min • stabilita a sila", warmup:["Rýchla chôdza 1 min","Kruhy trupom 1 min","Lahké mostíky 1 min","Streč 2 min"], workout:[['Glute bridge','3×12'],['Výpady vpred','3×10 / noha'],['Russian twist','3×20'],['Side plank','3×20 s / strana']], motto:"Buduješ silu aj sebavedomie."},
+  {day:6, type:'oddych', title:'Oddych', desc:"Oddych / dychové cvičenie / krátka prechádzka", warmup:null, workout:null, motto:"Oddych je súčasťou pokroku."},
+  {day:7, type:'tréning', title:'HIIT light', desc:"20 min • 30s práce / 30s pauza", warmup:["Kruhový streč 2 min","Skákanie na mieste 1 min","Dynamické drepy 1 min","Ruky 1 min"], workout:[['Jumping jacks','8×30 s'],['Drepy','4×12'],['Mountain climbers','8×30 s'],['Burpees (ľahké)','3×8']], motto:"Energie máš viac, než si myslíš."},
+
+  {day:8, type:'mindset', title:'Ranný rituál', desc:"Voda + 3 hlboké nádychy + 3 min stretch", warmup:null, workout:null, motto:"Nový deň, nová príležitosť."},
+  {day:9, type:'tréning', title:'Full body', desc:"20 min • celotelový okruh", warmup:["Rýchla chôdza 1 min","Dynamický streč 2 min","ľahké kľuky 1 min","Rotácie trupu 1 min"], workout:[['Drepy','3×15'],['Kľuky','3×10'],['Superman','3×12'],['Plank s dotykom ramena','3×12']], motto:"Robíš to pre seba."},
+  {day:10, type:'mindset', title:'Journaling', desc:"Pitný režim + journaling: Čo ma robí šťastnou?", warmup:null, workout:null, motto:"Zameraj sa na to, čo ťa posilňuje."},
+  {day:11, type:'mindset', title:'Detox', desc:"Dnes bez sladkostí alebo kávy – malý detox", warmup:null, workout:null, motto:"Malé zmeny, veľké výsledky."},
+  {day:12, type:'tréning', title:'Zadok & nohy', desc:"20 min • silovejšie tempo", warmup:["Chôdza na mieste 1 min","Dynamické výpady 1 min","Kolenné kruhy 1 min","Streč 2 min"], workout:[['Bulharské drepy','3×10 / strana'],['Mostík','3×12'],['Výpony na špičky','3×15'],['Drepy s výskokom','3×12']], motto:"Každým dňom silnejšia."},
+
+  {day:13, type:'oddych', title:'Oddych', desc:"Oddych + prechádzka 30 min", warmup:null, workout:null, motto:"Pohyb je aj relax."},
+  {day:14, type:'tréning', title:'Kardio mix', desc:"20 min • mix kardio cvikov", warmup:["Skákanie 1 min","Dynamický streč 1 min","Rýchle kroky 1 min","Ramená 2 min"], workout:[['Skipping','5×60 s'],['Squat jump','4×10'],['Mountain climbers','4×30 s'],['Burpees','4×8']], motto:"Tvoje srdce je motor tvojej energie."},
+  {day:15, type:'mindset', title:'List sebe', desc:"Napíš si list sebe – podpora od seba pre seba.", warmup:null, workout:null, motto:"Si svoj najlepší tím."},
+  {day:16, type:'tréning', title:'Ranný rýchly tréning', desc:"15–20 min • rýchly štart", warmup:["Krátka chôdza 1 min","Ramenné kruhy 1 min","Lahké drepy 1 min","Streč 2 min"], workout:[['Jumping jacks','3×30 s'],['Push-ups','3×10'],['Crunches','3×15'],['Squat hold','3×30 s']], motto:"Začni deň silná."},
+  {day:17, type:'dýchanie', title:'Dych / meditácia', desc:"10–15 min • dychová technika alebo meditácia", warmup:null, workout:null, motto:"Pokoj je tvoja super sila."},
+
+  {day:18, type:'mindset', title:'Reflexia', desc:"Zastav sa a napíš, čo si už zvládla.", warmup:null, workout:null, motto:"Už teraz robíš veľké kroky."},
+  {day:19, type:'tréning', title:'Výzvový tréning', desc:"20 min • 3 okruhy — výzva", warmup:["Chôdza 1 min","Dynamické rozťahovanie 2 min","Jemné výpady 1 min","Ruky 1 min"], workout:[['Okruh','drepy, kľuky, plank, výpady, burpee — 3× okruh']], motto:"Si silnejšia, než si myslíš."},
+  {day:20, type:'mindset', title:'Úloha', desc:"Priprav si jedálny denník na zajtra — sleduj, čo vložíš do tela.", warmup:null, workout:null, motto:"Staraj sa o svoje telo s láskou."},
+  {day:21, type:'mindset', title:'After + reflexia', desc:"Foto 'after' + reflexia: Čo sa zmenilo? Napíš 3 veci, ktoré si dosiahla.", warmup:null, workout:null, motto:"Toto je nový začiatok tvojej cesty."}
+];
+
+/* vytvorenie tlačidiel dní */
+const dayGrid = document.getElementById('dayGrid');
+const introBtn = document.createElement('button');
+introBtn.className='day-btn';
+introBtn.innerText='Úvod';
+introBtn.addEventListener('click', ()=> selectDay(0));
+dayGrid.appendChild(introBtn);
+data.filter(d=>d.day>0).forEach(d=>{
+  const btn = document.createElement('button');
+  btn.className = 'day-btn';
+  btn.innerText = d.day;
+  btn.title = d.title + ' — ' + d.desc;
+  btn.addEventListener('click', ()=> selectDay(d.day));
+  dayGrid.appendChild(btn);
+});
+
+/* render */
+let current = 0;
+function render(dayIndex){
+  const d = data.find(x=>x.day===dayIndex);
+  const card = document.getElementById('mainCard');
+  card.innerHTML = '';
+  if(!d) return;
+  if(d.type==='intro'){
+    const wrap = document.createElement('div'); wrap.className='intro';
+    wrap.innerHTML = `<h1>21-dňová výzva — Dominika</h1>
+                      <p>Vitaj vo svojej 21-dňovej výzve — krok k rovnováhe tela, mysle a duše.</p>
+                      <p style="margin-top:18px;font-weight:700;color:var(--accent)">Začni kliknutím na Deň 1 alebo použi tlačidlá ← →</p>`;
+    card.appendChild(wrap);
+  } else {
+    const header = document.createElement('div'); header.className='day-header';
+    header.innerHTML = `<div><h2 class="day-h1">Deň ${d.day} — ${d.title}</h2><div class="motto">${d.motto}</div></div>`;
+    card.appendChild(header);
+
+    const desc = document.createElement('div'); desc.className='desc'; desc.innerText = d.desc;
+    card.appendChild(desc);
+
+    // warmup
+    if(d.warmup && d.warmup.length){
+      const wbox = document.createElement('div'); wbox.className='warmup';
+      const h = document.createElement('div'); h.className='section-title'; h.innerText='Rozcvička (cca 5 min)';
+      wbox.appendChild(h);
+      const ul = document.createElement('ul');
+      d.warmup.forEach(i=>{ const li=document.createElement('li'); li.innerText='• '+i; ul.appendChild(li); });
+      wbox.appendChild(ul);
+      card.appendChild(wbox);
+    }
+
+    // workout
+    if(d.workout){
+      const grid = document.createElement('div'); grid.className='workout';
+      d.workout.forEach(item=>{
+        const cardi = document.createElement('div'); cardi.className='wk-item';
+        const t = document.createElement('div'); t.className='wk-title'; t.innerText = item[0];
+        const m = document.createElement('div'); m.className='wk-meta'; m.innerText = item[1];
+        cardi.appendChild(t); cardi.appendChild(m); grid.appendChild(cardi);
+      });
+      card.appendChild(grid);
+    }
+  }
+
+  document.querySelectorAll('.day-btn').forEach(b=>{ b.classList.remove('active'); if(b.innerText===(dayIndex===0?'Úvod':String(dayIndex))) b.classList.add('active') });
+  current = dayIndex;
+}
+
+/* controls */
+function selectDay(n){ render(n); window.scrollTo({top:0,behavior:'smooth'}); }
+document.getElementById('next').addEventListener('click', ()=>{ if(current<21) selectDay(current+1); else if(current===0) selectDay(1); });
+document.getElementById('prev').addEventListener('click', ()=>{ if(current>1) selectDay(current-1); else if(current===1) selectDay(0); });
+document.getElementById('print').addEventListener('click', ()=>{ window.print(); });
+document.getElementById('addNote').addEventListener('click', ()=>{ /* placeholder */ alert('Tu môžeš napísať poznámku'); });
+document.getElementById('markDone').addEventListener('click', ()=>{
+  const btn = document.querySelector('.day-btn.active');
+  if(btn){ if(!btn.innerText.includes('✓')) btn.innerText = btn.innerText + ' ✓'; btn.style.opacity='0.7'; }
+});
+window.addEventListener('keydown', (e)=>{
+  if(e.key==='ArrowRight'){ if(current<21) selectDay(current+1); else if(current===0) selectDay(1); }
+  if(e.key==='ArrowLeft'){ if(current>1) selectDay(current-1); else if(current===1) selectDay(0); }
+});
+
+/* start */
+render(0);
+</script>
+</body>
+</html>
